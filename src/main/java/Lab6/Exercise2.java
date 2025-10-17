@@ -14,6 +14,7 @@ import java.io.*;
 public class Exercise2 extends Application
 {
     private int numSal = 0;
+    private double totalValue = 0;
 
     @Override
     public void start(Stage stage){
@@ -28,6 +29,9 @@ public class Exercise2 extends Application
         Button btDone = new Button("Done");
         Label showSalaries = new Label("");
         StringBuilder allSalaries = new StringBuilder();
+        Label count = new Label("");
+        Label total = new Label("");
+        Label average = new Label("");
 
         btSalary.setOnAction(e -> {
             String input = tf1.getText();
@@ -46,7 +50,7 @@ public class Exercise2 extends Application
             } catch (NumberFormatException ex) {
                 salaryTotal.setText("Salary is invalid");
             } catch (IOException ex) {
-                salaryTotal.setText("Error writing to file");
+                salaryTotal.setText("Error writing to file in btSalary");
             }
         });
 
@@ -54,18 +58,52 @@ public class Exercise2 extends Application
             try (DataInputStream input = new DataInputStream(new FileInputStream("salaries.dat"))) {
                 while (true) {
                     double value = input.readDouble();
+                    totalValue += value;
                     if (allSalaries.length() > 0) {
                         allSalaries.append(", ");
                     }
                     allSalaries.append(value);
                 }
+            } catch (EOFException ex) {
+                // end of file reached — normal, stop reading
+                salaryTotal.setText("Finito");
             } catch (IOException ex) {
-                salaryTotal.setText("Error writing to file");
+                salaryTotal.setText("Error writing to file in btDone");
             }
-            showSalaries.setText(allSalaries.toString());
+            showSalaries.setText("Salaries: " + allSalaries.toString());
+            count.setText("Count: " + Integer.toString(numSal));
+            total.setText("Total: " + Double.toString(totalValue));
+            average.setText("Average: " + Double.toString(totalValue/numSal));
         });
 
-        vbox.getChildren().addAll(salary,tf1,btSalary,salaryTotal,btDone);
+        vbox.getChildren().addAll(salary,tf1,btSalary,salaryTotal,btDone, showSalaries, count, total, average);
+
+        //reset
+        Button btReset = new Button("Reset");
+        vbox.getChildren().add(btReset);
+
+        btReset.setOnAction(e -> {
+            // Clear the text field
+            tf1.clear();
+
+            // Reset the counter
+            numSal = 0;
+
+            // Clear the labels
+            salaryTotal.setText("0 Salary added to the file");
+            showSalaries.setText("");
+            count.setText("");
+            total.setText("");
+            average.setText("");
+            allSalaries.setLength(0);
+
+            // Optional: clear the file
+            File file = new File("salaries.dat");
+            if (file.exists()) {
+                file.delete(); // deletes the file completely
+            }
+        });
+
 
         Scene scene = new Scene(vbox,200,200);
         stage.setTitle("Exercise 1");
