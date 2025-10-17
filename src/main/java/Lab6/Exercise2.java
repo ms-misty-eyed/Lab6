@@ -62,6 +62,7 @@ public class Exercise2 extends Application
             } catch (IOException ex) {
                 salaryTotal.setText("Error writing to file");
             }
+            showSalaries.setText(allSalaries.toString());
         });
 
         vbox.getChildren().addAll(salary,tf1,btSalary,salaryTotal,btDone);
